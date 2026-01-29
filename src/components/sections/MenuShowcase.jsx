@@ -87,7 +87,7 @@ export default function MenuShowcase() {
             id="menu"
             ref={sectionRef}
             className={`
-                relative bg-charcoal
+                relative bg-[#0a0a0a]
                 ${isMobile ? 'h-auto overflow-hidden' : 'h-[600vh]'}
             `}
         >

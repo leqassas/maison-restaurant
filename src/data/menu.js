@@ -4,7 +4,7 @@ export const menuItems = [
         name: 'Amuse Bouche',
         description: 'Seasonal prelude. Essence of spring garden.',
         price: '—',
-        image: '/images/amuse.png',
+        image: '/images/Amuse-bouche.png',
         category: 'Start'
     },
     {
@@ -20,7 +20,7 @@ export const menuItems = [
         name: 'Wild Turbot',
         description: 'Braised turbot, champagne sauce, smoked leeks.',
         price: '58',
-        image: '/images/turbot.png',
+        image: '/images/Wild-turbot.png',
         category: 'Fish'
     },
     {
@@ -28,7 +28,7 @@ export const menuItems = [
         name: 'A5 Wagyu',
         description: 'Kagoshima wagyu, black truffle, pomme purée.',
         price: '120',
-        image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wagyu_beef,_truffle.jpg?width=1000',
+        image: '/images/a5-wagyu.png',
         category: 'Meat'
     },
     {
@@ -36,7 +36,7 @@ export const menuItems = [
         name: 'Rohan Duck',
         description: 'Aged duck breast, spiced plum, salsify.',
         price: '52',
-        image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Roast_duck_breast_at_Le_46,_Avignon,_France_-_20140713.jpg?width=1000',
+        image: '/images/aged-duck.png',
         category: 'Meat'
     },
     {
@@ -44,7 +44,7 @@ export const menuItems = [
         name: 'Aged Comté',
         description: '36-month Comté, honeycomb, sourdough cracker.',
         price: '24',
-        image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Comt%C3%A9_Cheese.jpg?width=1000',
+        image: '/images/aged-compte.png',
         category: 'Cheese'
     },
     {
@@ -52,7 +52,7 @@ export const menuItems = [
         name: 'Soufflé',
         description: 'Grand Marnier soufflé, vanilla bean anglaise.',
         price: '22',
-        image: 'https://commons.wikimedia.org/wiki/Special:FilePath/Chocolate_Souffl%C3%A9.jpg?width=1000',
+        image: '/images/souffle.png',
         category: 'Dessert'
     }
 ];

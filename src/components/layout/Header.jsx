@@ -79,7 +79,7 @@ export default function Header() {
             {/* Mobile Menu Overlay */}
             <div
                 className={`
-                    fixed inset-0 bg-charcoal z-40 flex items-center justify-center
+                    fixed inset-0 bg-[#0a0a0a] z-40 flex items-center justify-center
                     transition-all duration-1500 ease-luxury
                     ${isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}
                 `}
