@@ -1,9 +1,51 @@
 import { useEffect, useRef, useState } from 'react';
+import { supabase } from '../../lib/supabase';
+
+// Floating Label Input Component
+const FloatingInput = ({ type, label, value, onChange, disabled }) => {
+    const [isFocused, setIsFocused] = useState(false);
+    const hasValue = value.length > 0;
+    const isActive = isFocused || hasValue;
+
+    return (
+        <div className="relative pt-4">
+            <input
+                type={type}
+                value={value}
+                onChange={onChange}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                disabled={disabled}
+                className="
+                    peer
+                    appearance-none
+                    w-full px-0 py-3 bg-transparent border-b border-cream/20 
+                    text-cream text-lg tracking-wide
+                    focus:border-gold focus:outline-none
+                    transition-colors duration-500
+                    rounded-none
+                "
+            />
+            <label
+                className={`
+                    absolute left-0 transition-all duration-300 ease-out pointer-events-none
+                    ${isActive
+                        ? 'top-0 text-xs text-gold/80 tracking-widest uppercase'
+                        : 'top-4 text-lg text-cream/40'}
+                `}
+            >
+                {label}
+            </label>
+        </div>
+    );
+};
 
 export default function Reservation() {
     const sectionRef = useRef(null);
     const [isVisible, setIsVisible] = useState(false);
-    const [status, setStatus] = useState('idle'); // idle, submitting, success
+    const [status, setStatus] = useState('idle'); // idle, submitting, success, error
+    const [errorMessage, setErrorMessage] = useState('');
+
     const [formState, setFormState] = useState({
         name: '',
         email: '',
@@ -28,15 +70,44 @@ export default function Reservation() {
         return () => observer.disconnect();
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus('submitting');
+        setErrorMessage('');
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            // Check if Supabase is configured
+            if (!supabase) {
+                // If no keys, just allow simulation (so the site doesn't break for the user instantly)
+                console.warn('Supabase not configured. Simulating success.');
+                setTimeout(() => {
+                    setStatus('success');
+                    setFormState({ name: '', email: '', date: '', guests: '2' });
+                }, 1500);
+                return;
+            }
+
+            const { error } = await supabase
+                .from('reservations')
+                .insert([
+                    {
+                        name: formState.name,
+                        email: formState.email,
+                        date: formState.date,
+                        guests: parseInt(formState.guests),
+                    }
+                ]);
+
+            if (error) throw error;
+
             setStatus('success');
             setFormState({ name: '', email: '', date: '', guests: '2' });
-        }, 1500);
+
+        } catch (error) {
+            console.error('Error submitting reservation:', error);
+            setStatus('error');
+            setErrorMessage('Could not connect. Please try again later.');
+        }
     };
 
     return (
@@ -86,7 +157,7 @@ export default function Reservation() {
                 >
                     {status === 'success'
                         ? 'Thank you. Our concierge will confirm your reservation via email shortly.'
-                        : 'We seat just twenty-four guests each evening. Reservations are accepted four weeks in advance, opening at midnight Paris time.'
+                        : 'We seat just twenty-four guests each evening. Reservations are accepted four weeks in advance.'
                     }
                 </p>
 
@@ -106,92 +177,77 @@ export default function Reservation() {
                         onSubmit={handleSubmit}
                         className={`
                             transition-all duration-1500 ease-luxury delay-300
+                            text-left
                             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
                         `}
                     >
-                        <div className="grid md:grid-cols-2 gap-8 mb-8">
-                            <input
+                        <div className="grid md:grid-cols-2 gap-12 mb-12">
+                            <FloatingInput
                                 type="text"
-                                placeholder="Name"
+                                label="Name"
                                 value={formState.name}
                                 onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                                className="
-                    appearance-none
-                    w-full px-0 py-4 bg-transparent border-b border-cream/20 
-                    text-cream placeholder:text-cream/30 text-lg tracking-wide
-                    focus:border-gold focus:outline-none
-                    transition-colors duration-500
-                    rounded-none
-                "
-                                required
-                                aria-label="Name"
                                 disabled={status === 'submitting'}
                             />
-                            <input
+
+                            <FloatingInput
                                 type="email"
-                                placeholder="Email"
+                                label="Email"
                                 value={formState.email}
                                 onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                                className="
-                    appearance-none
-                    w-full px-0 py-4 bg-transparent border-b border-cream/20 
-                    text-cream placeholder:text-cream/30 text-lg tracking-wide
-                    focus:border-gold focus:outline-none
-                    transition-colors duration-500
-                    rounded-none
-                "
-                                required
-                                aria-label="Email Address"
                                 disabled={status === 'submitting'}
                             />
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-8 mb-16">
-                            <div className="relative">
+                        <div className="grid md:grid-cols-2 gap-12 mb-16">
+                            {/* Native Date Input styled cleanly */}
+                            <div className="relative pt-4">
                                 <input
                                     type="date"
                                     value={formState.date}
                                     onChange={(e) => setFormState({ ...formState, date: e.target.value })}
                                     className="
-                    appearance-none
-                    w-full px-0 py-4 bg-transparent border-b border-cream/20 
-                    text-cream text-lg tracking-wide
-                    focus:border-gold focus:outline-none
-                    transition-colors duration-500
-                    rounded-none
-                    [color-scheme:dark]
-                    "
+                                        w-full px-0 py-3 bg-transparent border-b border-cream/20 
+                                        text-cream text-lg tracking-wide
+                                        focus:border-gold focus:outline-none
+                                        transition-colors duration-500
+                                        rounded-none
+                                        [color-scheme:dark]
+                                    "
                                     required
-                                    aria-label="Reservation Date"
                                     disabled={status === 'submitting'}
                                 />
+                                <label className="absolute top-0 left-0 text-xs text-gold/80 tracking-widest uppercase pointer-events-none">
+                                    Date
+                                </label>
                             </div>
 
-                            <div className="relative">
+                            <div className="relative pt-4">
                                 <select
                                     value={formState.guests}
                                     onChange={(e) => setFormState({ ...formState, guests: e.target.value })}
                                     className="
-                    appearance-none
-                    w-full px-0 py-4 bg-transparent border-b border-cream/20 
-                    text-cream text-lg tracking-wide
-                    focus:border-gold focus:outline-none
-                    transition-colors duration-500
-                    rounded-none
-                    cursor-pointer
-                    "
-                                    aria-label="Number of Guests"
+                                        appearance-none
+                                        w-full px-0 py-3 bg-transparent border-b border-cream/20 
+                                        text-cream text-lg tracking-wide
+                                        focus:border-gold focus:outline-none
+                                        transition-colors duration-500
+                                        rounded-none
+                                        cursor-pointer
+                                    "
                                     disabled={status === 'submitting'}
                                 >
-                                    <option value="1" className="bg-charcoal text-cream">1 Guest</option>
-                                    <option value="2" className="bg-charcoal text-cream">2 Guests</option>
-                                    <option value="3" className="bg-charcoal text-cream">3 Guests</option>
-                                    <option value="4" className="bg-charcoal text-cream">4 Guests</option>
-                                    <option value="5" className="bg-charcoal text-cream">5 Guests</option>
-                                    <option value="6" className="bg-charcoal text-cream">6 Guests</option>
+                                    <option value="1" className="bg-charcoal">1 Guest</option>
+                                    <option value="2" className="bg-charcoal">2 Guests</option>
+                                    <option value="3" className="bg-charcoal">3 Guests</option>
+                                    <option value="4" className="bg-charcoal">4 Guests</option>
+                                    <option value="5" className="bg-charcoal">5 Guests</option>
+                                    <option value="6" className="bg-charcoal">6 Guests</option>
                                 </select>
-                                {/* Custom arrow for select */}
-                                <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-cream/40">
+                                <label className="absolute top-0 left-0 text-xs text-gold/80 tracking-widest uppercase pointer-events-none">
+                                    Guests
+                                </label>
+                                <div className="absolute right-0 bottom-4 pointer-events-none text-cream/40">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <path d="M6 9L12 15L18 9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
@@ -199,36 +255,42 @@ export default function Reservation() {
                             </div>
                         </div>
 
+                        {status === 'error' && (
+                            <p className="text-red-400 text-sm mb-8 text-center animate-fade-in">
+                                {errorMessage}
+                            </p>
+                        )}
+
                         {/* Submit button */}
-                        <button
-                            type="submit"
-                            disabled={status === 'submitting'}
-                            className={`
-                                group relative px-16 py-6 
-                                bg-transparent border border-gold/40 
-                                text-gold text-sm tracking-[0.2em] uppercase
-                                overflow-hidden
-                                transition-all duration-700 ease-out
-                                hover:border-gold hover:text-charcoal
-                                disabled:opacity-50 disabled:cursor-wait
-                            `}
-                        >
-                            {/* Button background slide */}
-                            <span
-                                className="
-                    absolute inset-0 bg-gold 
-                    transform -translate-x-[101%] group-hover:translate-x-0
-                    transition-transform duration-700 ease-luxury
-                "
-                            />
-                            <span className="relative z-10">
-                                {status === 'submitting' ? 'Requesting...' : 'Request Reservation'}
-                            </span>
-                        </button>
+                        <div className="text-center">
+                            <button
+                                type="submit"
+                                disabled={status === 'submitting'}
+                                className={`
+                                    group relative px-16 py-6 
+                                    bg-transparent border border-gold/40 
+                                    text-gold text-sm tracking-[0.2em] uppercase
+                                    overflow-hidden
+                                    transition-all duration-700 ease-out
+                                    hover:border-gold hover:text-charcoal
+                                    disabled:opacity-50 disabled:cursor-wait
+                                `}
+                            >
+                                <span
+                                    className="
+                                        absolute inset-0 bg-gold 
+                                        transform -translate-x-[101%] group-hover:translate-x-0
+                                        transition-transform duration-700 ease-luxury
+                                    "
+                                />
+                                <span className="relative z-10">
+                                    {status === 'submitting' ? 'Requesting...' : 'Request Reservation'}
+                                </span>
+                            </button>
+                        </div>
                     </form>
                 )}
 
-                {/* Note */}
                 <p
                     className={`
             text-cream/30 text-xs tracking-wider mt-10

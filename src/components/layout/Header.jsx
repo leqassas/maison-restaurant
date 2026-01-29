@@ -60,7 +60,7 @@ export default function Header() {
                             onClick={(e) => handleNavClick(e, item.href)}
                             className="text-cream/70 text-sm tracking-wider uppercase hover:text-cream transition-colors duration-1200"
                         >
-                            {item.name} // Fixed: was using index
+                            {item.name}
                         </a>
                     ))}
                 </nav>
