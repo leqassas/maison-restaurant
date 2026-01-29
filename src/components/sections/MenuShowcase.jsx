@@ -183,7 +183,9 @@ export default function MenuShowcase() {
                                     ${isMobile ? 'w-[85%] h-[85%]' : 'w-[70%] h-[80%]'}
                                 `}>
                                     <img
-                                        src={dish.image}
+                                        src={dish.image.src}
+                                        srcSet={dish.image.srcset}
+                                        sizes="(max-width: 768px) 85vw, 40vw"
                                         alt={dish.name}
                                         className="w-full h-full object-cover transform scale-105 group-hover:scale-100 transition-transform duration-[2s] ease-out"
                                         loading="lazy"

@@ -31,7 +31,7 @@ function App() {
     'https://images.pexels.com/photos/941861/pexels-photo-941861.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', // Hero
     'https://images.pexels.com/photos/2102934/pexels-photo-2102934.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', // Chef
     // Dynamic menu images
-    ...menuItems.map(item => item.image)
+    ...menuItems.map(item => item.image.src)
   ];
 
   const { progress } = useImagePreloader(imageUrls);

@@ -13,7 +13,7 @@ export default function DishPlane({
 }) {
     // Load texture from the path in menu.js
     // useTexture will auto-suspend appropriately
-    const texture = useTexture(dish.image);
+    const texture = useTexture(dish.image.src);
     const materialRef = useRef();
 
     useFrame(() => {
